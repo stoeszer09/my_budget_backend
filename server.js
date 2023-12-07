@@ -10,6 +10,7 @@ app.use(cors());
 
 // ROUTES
 
+app.use("/expenses", require("./controllers/expenses"));
 
 app.get("/", (req, res) => {
     console.log("root url");
