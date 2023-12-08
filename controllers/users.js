@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { addSampleData } = require("../db/transactions");
+const { addUser } = require("../db/users");
 
 // router.get("/profile/:sub", async (req, res) => {
 //   const userId = req.params.sub;
@@ -28,8 +28,9 @@ router.get('/', async (req, res) => {
 // });
 
 // POST /users
-router.post('/', (req, res) => {
-  res.status(200).send({ message: 'Create user worked' });
+router.post('/', async (req, res) => {
+  const result = await addUser('Phil', '123abc')
+  res.status(200).send({ message: result.rows });
 });
 
 // GET /users/:id
