@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
     let data = await addSampleData();
     console.log('here', data.rows[0])
     // Respond with a success message
-    res.status(200).json({ message: data.rows[0].name });
+    res.status(200).json({ message: data.rows, random: Math.random() });
   } catch (error) {
     // Handle errors and respond with an error message
     console.error("Error in adding sample data:", error);

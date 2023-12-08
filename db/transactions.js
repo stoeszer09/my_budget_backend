@@ -24,8 +24,8 @@ async function addSampleData() {
     try {
         // await client.connect();
         const result = await client.query(
-            'INSERT INTO account_user(name, auth, monthly_budget) VALUES($1, $2, $3) RETURNING name',
-            ['Phil', '123', 23]
+            'SELECT name FROM account_user WHERE name=$1',
+            ['Phil']
         );
         console.log('Inserted data:', result.rows[0]);
         return result
