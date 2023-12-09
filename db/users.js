@@ -9,12 +9,11 @@ const client = new Pool({
 
 const userExists = async (auth) => {
   // Check to see if a user exists.
-  return (
-    (await client.query(
-      "SELECT id FROM account_user WHERE auth=$1",
-      [auth]
-    ).rows?.length) > 0
-  );
+  const user = await client.query(
+    "SELECT id FROM account_user WHERE auth=$1",
+    [auth]
+  )
+  return user.rows.length > 0;
 };
 
 // database.js

@@ -8,28 +8,32 @@ const { addUser } = require("../db/users");
 //   res.status(200).send(response.rows);
 // });
 
-router.get('/', async (req, res) => {
-  try {
-    // Call the function to add sample data
-    let data = await addSampleData();
-    console.log('here', data.rows[0])
-    // Respond with a success message
-    res.status(200).json({ message: data.rows, random: Math.random() });
-  } catch (error) {
-    // Handle errors and respond with an error message
-    console.error("Error in adding sample data:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+// router.get('/', async (req, res) => {
+//   try {
+//     // Call the function to add sample data
+//     let data = await addSampleData();
+//     console.log('here', data.rows[0])
+//     // Respond with a success message
+//     res.status(200).json({ message: data.rows, random: Math.random() });
+//   } catch (error) {
+//     // Handle errors and respond with an error message
+//     console.error("Error in adding sample data:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
 
 // GET /users
-// router.get('/', (req, res) => {
-//   res.status(200).send({ message: 'List of users worked' });
-// });
+router.get('/', (req, res) => {
+  res.status(200).send({ message: 'List of users worked' });
+});
 
 // POST /users
 router.post('/', async (req, res) => {
-  const result = await addUser('Phil', '123abc')
+  const {name, auth} = req.body;
+
+  console.log(req.body)
+  
+  const result = await addUser(name, auth)
   res.status(200).send({ message: result.rows });
 });
 
