@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { addUser, updateUserName } = require("../db/users");
+const { addUser, updateUserName, updateMonthlyBudget, getUser } = require("../db/users");
 
 // router.get("/profile/:sub", async (req, res) => {
 //   const userId = req.params.sub;
@@ -31,19 +31,22 @@ router.get('/', (req, res) => {
 router.post('/', async (req, res) => {
   const {name, auth} = req.body;
   if (!name || !auth) {
-    res.status(401).send({ message: 'No data' })
+    return res.status(401).send({ message: 'No data' })
   }  
   const result = await addUser(name, auth)
   res.status(200).send({ message: result.rows });
 });
 
-// GET /users/
-router.get('/', (req, res) => {
-  res.status(200).send({ message: 'Retrieve user worked' });
-});
-
 // PUT /users/
-router.put('/', (req, res) => {
+router.put('/', async (req, res) => {
+  const { name, user } = req.body;
+
+  if (!user || !user.sub) {
+    return res.status(401).send({ message: 'No data' })
+  }
+  if (name !== user.nickname) {
+    await updateUserName(name, user.sub)
+  }
   res.status(200).send({ message: 'Update user worked' });
 });
 
@@ -73,12 +76,17 @@ router.get('/monthly-budgets', (req, res) => {
 });
 
 // PUT /users/monthly-budgets
-router.put('/monthly-budgets', (req, res) => {
-  const { name, budget, user} = req.body;
-  const currentMonth = new Date().getMonth() + 1;
-  if (name !== user.nickname) {
-    updateUserName(name, user.sub)
+router.put('/monthly-budgets', async (req, res) => {
+  const { budget, user} = req.body;
+
+  if (!user || !user.sub) {
+    return res.status(401).send({ message: 'No data' })
   }
+  
+  const currentMonth = new Date();
+  const userId = await getUser(user.sub)
+  const response = await updateMonthlyBudget(budget, userId, currentMonth)
+
   res.status(200).send({ message: 'monthly budget updated' });
 });
 

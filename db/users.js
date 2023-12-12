@@ -37,10 +37,11 @@ async function addUser(name, auth) {
 async function getUser(auth) {
   try {
     const result = await client.query(
-      'SELECT name FROM account_user WHERE auth=$1',
+      'SELECT name, id FROM account_user WHERE auth=$1',
       [auth]
     )
-    return result.rows[0]
+    console.log('getuser: ', result.rows[0].id)
+    return result.rows[0].id
   } catch (error) {
     console.error('Error updating user:', error);
     return false
@@ -61,11 +62,11 @@ async function updateUserName(name, auth) {
   }
 }
 
-async function updateMonthlyBudget(budget, userId) {
+async function updateMonthlyBudget(budget, userId, month) {
   try {
     const result = await client.query(
-      'UPDATE monthly_budget SET amount=$1 WHERE account_user_id=$2 RETURNING *',
-      [budget, userId]
+      'INSERT INTO monthly_budget (amount, start_date, account_user_id) VALUES ($1, $2, $3) RETURNING *',
+      [budget, month, userId]
     );
     console.log('Updated Budget:', result.rows[0]);
     return result
