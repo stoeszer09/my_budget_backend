@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { addUser } = require("../db/users");
+const { addUser, updateUserName } = require("../db/users");
 
 // router.get("/profile/:sub", async (req, res) => {
 //   const userId = req.params.sub;
@@ -30,56 +30,56 @@ router.get('/', (req, res) => {
 // POST /users
 router.post('/', async (req, res) => {
   const {name, auth} = req.body;
-
-  console.log(req.body)
-  
+  if (!name || !auth) {
+    res.status(401).send({ message: 'No data' })
+  }  
   const result = await addUser(name, auth)
   res.status(200).send({ message: result.rows });
 });
 
-// GET /users/:id
-router.get('/:id', (req, res) => {
+// GET /users/
+router.get('/', (req, res) => {
   res.status(200).send({ message: 'Retrieve user worked' });
 });
 
-// PUT /users/:id
-router.put('/:id', (req, res) => {
+// PUT /users/
+router.put('/', (req, res) => {
   res.status(200).send({ message: 'Update user worked' });
 });
 
-// DELETE /users/:id
-router.delete('/:id', (req, res) => {
-  res.status(200).send({ message: 'Delete user worked' });
-});
-
 // GET /users/:userId/recurring
-router.get('/:userId/recurring', (req, res) => {
+router.get('/recurring', (req, res) => {
   res.status(200).send({ message: 'List of recurring transactions worked' });
 });
 
-// POST /users/:userId/recurring
-router.post('/:userId/recurring', (req, res) => {
+// POST /users/recurring
+router.post('/recurring', (req, res) => {
   res.status(200).send({ message: 'Create recurring transaction worked' });
 });
 
-// GET /users/:userId/categories
-router.get('/:userId/categories', (req, res) => {
+// GET /users/categories
+router.get('/categories', (req, res) => {
   res.status(200).send({ message: 'List of categories worked' });
 });
 
-// POST /users/:userId/categories
-router.post('/:userId/categories', (req, res) => {
+// POST /users/categories
+router.post('/categories', (req, res) => {
   res.status(200).send({ message: 'Create category worked' });
 });
 
-// GET /users/:userId/monthly-budgets
-router.get('/:userId/monthly-budgets', (req, res) => {
+// GET /users/monthly-budgets
+router.get('/monthly-budgets', (req, res) => {
   res.status(200).send({ message: 'List of monthly budgets worked' });
 });
 
-// POST /users/:userId/monthly-budgets
-router.post('/:userId/monthly-budgets', (req, res) => {
-  res.status(200).send({ message: 'Create monthly budget worked' });
+// PUT /users/monthly-budgets
+router.put('/monthly-budgets', (req, res) => {
+  const { name, budget, user} = req.body;
+  const currentMonth = new Date().getMonth() + 1;
+  if (name !== user.nickname) {
+    updateUserName(name, user.sub)
+  }
+  res.status(200).send({ message: 'monthly budget updated' });
 });
 
 module.exports = router
