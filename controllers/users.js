@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { addUser, updateUserName, updateMonthlyBudget, getUser } = require("../db/users");
+const { addUser, updateUserName, updateMonthlyBudget, getUserId, addCategory } = require("../db/users");
 
 // router.get("/profile/:sub", async (req, res) => {
 //   const userId = req.params.sub;
@@ -66,8 +66,21 @@ router.get('/categories', (req, res) => {
 });
 
 // POST /users/categories
-router.post('/categories', (req, res) => {
-  res.status(200).send({ message: 'Create category worked' });
+router.post('/categories', async (req, res) => {
+  const {amount, category, user} = req.body;
+
+  if (!user || !user.sub) {
+    return res.status(401).send({ message: 'No data' })
+  }
+  try {
+    const currentMonth = new Date();
+    const userId = await getUserId(user.sub)
+    const response = await addCategory(category, userId, amount, currentMonth)
+  
+    res.status(200).send({ message: 'Create category worked' });
+  } catch (error) {
+    console.log('error updating monthly budget: ', error)
+  }
 });
 
 // GET /users/monthly-budgets
@@ -83,11 +96,15 @@ router.put('/monthly-budgets', async (req, res) => {
     return res.status(401).send({ message: 'No data' })
   }
   
-  const currentMonth = new Date();
-  const userId = await getUser(user.sub)
-  const response = await updateMonthlyBudget(budget, userId, currentMonth)
-
-  res.status(200).send({ message: 'monthly budget updated' });
+  try {
+    const currentMonth = new Date();
+    const userId = await getUserId(user.sub)
+    const response = await updateMonthlyBudget(budget, userId, currentMonth)
+  
+    res.status(200).send({ message: 'monthly budget updated' });
+  } catch (error) {
+    console.log('error updating monthly budget: ', error)
+  }
 });
 
 module.exports = router

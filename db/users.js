@@ -34,7 +34,7 @@ async function addUser(name, auth) {
     }
 }
 
-async function getUser(auth) {
+async function getUserId(auth) {
   try {
     const result = await client.query(
       'SELECT name, id FROM account_user WHERE auth=$1',
@@ -76,11 +76,26 @@ async function updateMonthlyBudget(budget, userId, month) {
   }
 }
 
+async function addCategory(categoryName, userId, amount, startDate, endDate) {
+  try {
+    const result = await client.query(
+      'INSERT INTO category (name, account_user_id, amount, effective_date, end_date) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [categoryName, userId, amount, startDate, endDate]
+    );
+    console.log(result.rows[0])
+    return result.rows[0]
+  } catch (error) {
+    console.error('Error adding category:', error);
+    return false
+  }
+}
+
 // Export the addSampleData function
 module.exports = {
   userExists,
   addUser,
-  getUser,
+  getUserId,
   updateUserName,
   updateMonthlyBudget,
+  addCategory,
 };

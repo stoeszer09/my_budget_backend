@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@mui/x-date-pickers": "^6.18.4",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
