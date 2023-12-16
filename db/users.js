@@ -48,6 +48,20 @@ async function getUserId(auth) {
   }
 }
 
+async function getCategoryList(auth) {
+  try {
+    const result = await client.query(
+      'SELECT category.name FROM account_user JOIN category ON account_user.id = category.account_user_id WHERE account_user.auth = $1',
+      [auth]
+    );
+    console.log('categories: ', result.rows)
+    return result.rows
+  } catch (error) {
+    console.log('Error getting category List: ', error)
+    return false
+  }
+}
+
 async function updateUserName(name, auth) {
   try {
     const result = await client.query(
@@ -98,4 +112,5 @@ module.exports = {
   updateUserName,
   updateMonthlyBudget,
   addCategory,
+  getCategoryList,
 };

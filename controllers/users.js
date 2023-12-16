@@ -1,5 +1,12 @@
 const router = require("express").Router();
-const { addUser, updateUserName, updateMonthlyBudget, getUserId, addCategory } = require("../db/users");
+const {
+  addUser,
+  updateUserName,
+  updateMonthlyBudget,
+  getUserId,
+  addCategory,
+  getCategoryList,
+} = require('../db/users');
 
 // router.get("/profile/:sub", async (req, res) => {
 //   const userId = req.params.sub;
@@ -61,8 +68,21 @@ router.post('/recurring', (req, res) => {
 });
 
 // GET /users/categories
-router.get('/categories', (req, res) => {
-  res.status(200).send({ message: 'List of categories worked' });
+router.put('/categories', async (req, res) => {
+  const {user} = req.body;
+
+  if (!user || !user.sub) {
+    return res.status(401).send({ message: 'No data' })
+  }
+  try {
+    const categoryList = await getCategoryList(user.sub)
+    if(!categoryList) {
+      throw new Error('Error is retrieving category List.')
+    }
+    return res.status(200).send({ categoryList });
+  } catch (error) {
+    console.log('error getting category list: ', error)
+  }
 });
 
 // POST /users/categories
