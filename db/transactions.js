@@ -31,14 +31,41 @@ async function addSampleData() {
         return result
     } catch (error) {
         console.error('Error adding sample data:', error);
-    } finally {
-        // Close the database connection
-        // await client.end();
-        // return result ? result : null
+        return false;
+    } 
+}
+
+async function addExpense(date, notes, amount, category, userId) {
+    try {
+        const incomeId = await getCategoryId('income')
+        const toCategory = await getCategoryId(category)
+        const result = await client.query(
+            'INSERT INTO transaction (amount, date, notes, account_user_id, to_category_id, from_category_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING * ',
+            [amount, date, notes, userId, toCategory, incomeId]
+        );
+        console.log('transaction added: ', result.rows)
+        return result.rows
+    } catch (error) {
+        console.error('Error adding sample data:', error);
+        return false;
+    }
+}
+
+async function getCategoryId(name) {
+    try {
+        const result = await client.query(
+            'SELECT id FROM category WHERE name=$1',
+            [name]
+        )
+        return result.rows[0].id
+    } catch (error) {
+        console.error('Error getting category ID:', error);
+        return false;
     }
 }
 
 // Export the addSampleData function
 module.exports = {
     addSampleData,
+    addExpense,
 };

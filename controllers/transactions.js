@@ -1,5 +1,7 @@
 const router = require("express").Router();
-const { addSampleData } = require("../db/transactions");
+const { addSampleData, addExpense } = require("../db/transactions");
+const { getUserId } = require("../db/users");
+
 
 // router.get("/profile/:sub", async (req, res) => {
 //   const userId = req.params.sub;
@@ -14,12 +16,29 @@ router.get('/', async (req, res) => {
     let data = await addSampleData();
     console.log('here', data.rows[0])
     // Respond with a success message
-    res.status(200).json({ message: data.rows, random: Math.random() });
+    return res.status(200).json({ message: data.rows, random: Math.random() });
   } catch (error) {
     // Handle errors and respond with an error message
     console.error("Error in adding sample data:", error);
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
+
+router.post('/', async (req, res) => {
+  const { date, notes, amount, category, user } = req.body;
+
+  if (!user || !user.sub) {
+    return res.status(401).send({ message: 'No data' })
+  }
+  
+  try {
+    const userId = await getUserId(user.sub)
+    const result = await addExpense(date, notes, amount, category, userId);
+
+    res.status(200).send({ message: 'transaction added' });
+  } catch (error) {
+    console.log('error adding transaction: ', error)
+  }
+})
 
 module.exports = router
