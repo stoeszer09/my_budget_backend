@@ -31,9 +31,23 @@ router.post('/', async (req, res) => {
 router.get('/users/:userId', async (req, res) => {
   const {userId} = req.params;
   try {
-    const result = await getTransactions(userId);
+    const transactions = await getTransactions(userId);
+    console.log(transactions)
 
-    return res.status(200).json({transactions: result})
+    // Collapse like transactions into a single one based on categoryId and returns an array
+    const combinedData = transactions.reduce((result, currentObj) => {
+      const existingObj = result.find(obj => obj.categoryId === currentObj.categoryId);
+    
+      if (existingObj) {
+        existingObj.amount += currentObj.amount;
+      } else {
+        result.push({ ...currentObj });
+      }
+    
+      return result;
+    }, []);
+
+    return res.status(200).json({transactions: combinedData})
     
   } catch (error) {
     // Handle errors and respond with an error message
