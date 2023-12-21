@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { addSampleData, addExpense } = require("../db/transactions");
+const { addSampleData, addExpense, getTransactions } = require("../db/transactions");
 const { getUserId } = require("../db/users");
 
 
@@ -9,20 +9,6 @@ const { getUserId } = require("../db/users");
 //   const response = await db.getUserBets(userId);
 //   res.status(200).send(response.rows);
 // });
-
-router.get('/', async (req, res) => {
-  try {
-    // Call the function to add sample data
-    let data = await addSampleData();
-    console.log('here', data.rows[0])
-    // Respond with a success message
-    return res.status(200).json({ message: data.rows, random: Math.random() });
-  } catch (error) {
-    // Handle errors and respond with an error message
-    console.error("Error in adding sample data:", error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
-});
 
 router.post('/', async (req, res) => {
   const { date, notes, amount, category, user } = req.body;
@@ -40,5 +26,20 @@ router.post('/', async (req, res) => {
     console.log('error adding transaction: ', error)
   }
 })
+
+
+router.get('/users/:userId', async (req, res) => {
+  const {userId} = req.params;
+  try {
+    const result = await getTransactions(userId);
+
+    return res.status(200).json({transactions: result})
+    
+  } catch (error) {
+    // Handle errors and respond with an error message
+    console.error("Error in getting transactions: ", error);
+    return res.status(200).json({ error: "Internal server error" });
+  }
+});
 
 module.exports = router
