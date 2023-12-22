@@ -67,7 +67,7 @@ async function getCategoryId(name) {
 async function getTransactions(userId) {
     try {
         const result = await client.query(
-            'SELECT transaction.amount, transaction.to_category_id AS "categoryId", category.name AS "categoryName" FROM transaction JOIN account_user ON transaction.account_user_id=account_user.id JOIN category ON transaction.to_category_id=category.id WHERE account_user.auth =$1',
+            'SELECT transaction.amount AS expense, transaction.to_category_id AS "categoryId", category.amount AS budget, category.name AS "categoryName" FROM transaction JOIN account_user ON transaction.account_user_id=account_user.id JOIN category ON transaction.to_category_id=category.id WHERE account_user.auth =$1',
             [userId]
         );
         return result.rows

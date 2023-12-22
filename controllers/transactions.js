@@ -32,14 +32,13 @@ router.get('/users/:userId', async (req, res) => {
   const {userId} = req.params;
   try {
     const transactions = await getTransactions(userId);
-    console.log(transactions)
 
     // Collapse like transactions into a single one based on categoryId and returns an array
     const combinedData = transactions.reduce((result, currentObj) => {
       const existingObj = result.find(obj => obj.categoryId === currentObj.categoryId);
     
       if (existingObj) {
-        existingObj.amount += currentObj.amount;
+        existingObj.expense += currentObj.expense;
       } else {
         result.push({ ...currentObj });
       }
@@ -47,7 +46,7 @@ router.get('/users/:userId', async (req, res) => {
       return result;
     }, []);
 
-    return res.status(200).json({transactions: combinedData})
+    return res.status(200).json({expenses: combinedData})
     
   } catch (error) {
     // Handle errors and respond with an error message
