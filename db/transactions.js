@@ -64,11 +64,18 @@ async function getCategoryId(name) {
     }
 }
 
-async function getTransactions(userId) {
+async function getTransactions(userId, year, month) {
+    if (!year) {
+        year = new Date().getFullYear();
+    }
+    if (!month) {
+        month = new Date().getMonth() + 1;
+    }
+
     try {
         const result = await client.query(
-            'SELECT transaction.amount AS expense, transaction.to_category_id AS "categoryId", category.amount AS budget, category.name AS "categoryName" FROM transaction JOIN account_user ON transaction.account_user_id=account_user.id JOIN category ON transaction.to_category_id=category.id WHERE account_user.auth =$1',
-            [userId]
+            'SELECT transaction.amount AS expense, transaction.to_category_id AS "categoryId", category.amount AS budget, category.name AS "categoryName" FROM transaction JOIN account_user ON transaction.account_user_id=account_user.id JOIN category ON transaction.to_category_id=category.id WHERE account_user.auth =$1 AND EXTRACT(YEAR FROM transaction.date) = $2 AND EXTRACT(MONTH FROM transaction.date) = $3',
+            [userId, year, month]
         );
         return result.rows
     } catch (error) {
