@@ -38,8 +38,8 @@ router.get('/users/:userId/:year?/:month?', async (req, res) => {
   }
   try {
     const transactions = await getTransactions(userId, year, month);
-    const combinedData = combineCategoryTransactions(transactions);
-    return res.status(200).json({expenses: combinedData})
+    // const combinedData = combineCategoryTransactions(transactions);
+    return res.status(200).json({expenses: transactions})
   } catch (error) {
     // Handle errors and respond with an error message
     console.error("Error in getting transactions: ", error);

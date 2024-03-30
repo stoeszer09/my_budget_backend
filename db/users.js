@@ -54,7 +54,6 @@ async function getCategoryList(auth) {
       'SELECT category.name FROM account_user JOIN category ON account_user.id = category.account_user_id WHERE account_user.auth = $1',
       [auth]
     );
-    console.log('categories: ', result.rows)
     return result.rows
   } catch (error) {
     console.log('Error getting category List: ', error)

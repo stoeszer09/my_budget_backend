@@ -6,6 +6,7 @@ const client = new Pool({
     //     rejectUnauthorized: false,
     // },
 });
+const { combineCategoryTransactions } = require("../utility/utils")
 
 // const userExists = async (email, sub) => {
 //   // Check to see if a user exists.
@@ -73,11 +74,16 @@ async function getTransactions(userId, year, month) {
     }
 
     try {
-        const result = await client.query(
-            'SELECT transaction.amount AS expense, transaction.to_category_id AS "categoryId", category.amount AS budget, category.name AS "categoryName" FROM transaction JOIN account_user ON transaction.account_user_id=account_user.id JOIN category ON transaction.to_category_id=category.id WHERE account_user.auth =$1 AND EXTRACT(YEAR FROM transaction.date) = $2 AND EXTRACT(MONTH FROM transaction.date) = $3',
+        const transactions = await client.query(
+            'SELECT transaction.amount AS expense, transaction.to_category_id AS "categoryId" FROM transaction JOIN account_user ON transaction.account_user_id=account_user.id WHERE account_user.auth =$1 AND EXTRACT(YEAR FROM transaction.date) = $2 AND EXTRACT(MONTH FROM transaction.date) = $3',
             [userId, year, month]
         );
-        return result.rows
+        const categories = await client.query(
+            'SELECT category.id AS "categoryId", category.amount AS "categoryBudget", category.name AS "categoryName" FROM category JOIN account_user ON category.account_user_id=account_user.id WHERE account_user.auth =$1 AND ((EXTRACT(YEAR FROM category.effective_date) < $2 OR (EXTRACT(YEAR FROM category.effective_date) = $2 AND EXTRACT(MONTH FROM category.effective_date) <= $3)) AND (end_date IS NULL OR (EXTRACT(YEAR FROM category.effective_date) > $2 OR (EXTRACT(YEAR FROM category.effective_date) = $2 AND EXTRACT(MONTH FROM category.effective_date) > $3))))',
+            [userId, year, month]
+        )
+        const combinedCategoryTransactions = combineCategoryTransactions(transactions.rows, categories.rows);
+        return combinedCategoryTransactions
     } catch (error) {
         console.error('Error getting transactions:', error);
         return false;
