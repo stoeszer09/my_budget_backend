@@ -1,7 +1,6 @@
 const router = require("express").Router();
-const { addSampleData, addExpense, getTransactions } = require("../db/transactions");
+const { addSampleData, addExpense, getTransactions, getExpenses } = require("../db/transactions");
 const { getUserId } = require("../db/users");
-const { combineCategoryTransactions } = require("../utility/utils")
 
 
 // router.get("/profile/:sub", async (req, res) => {
@@ -37,12 +36,29 @@ router.get('/users/:userId/:year?/:month?', async (req, res) => {
     month = new Date().getMonth() + 1;
   }
   try {
-    const transactions = await getTransactions(userId, year, month);
-    // const combinedData = combineCategoryTransactions(transactions);
-    return res.status(200).json({expenses: transactions})
+    const expenses = await getExpenses(userId, year, month);
+    return res.status(200).json({expenses: expenses})
   } catch (error) {
     // Handle errors and respond with an error message
     console.error("Error in getting transactions: ", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get('/budget/users/:userId/:year?/:month?', async (req, res) => {
+  let {userId, year, month} = req.params;
+  if (!year) {
+    year = new Date().getFullYear();
+  }
+  if (!month) {
+    month = new Date().getMonth() + 1;
+  }
+  try {
+    const transactions = await getTransactions(userId, year, month);
+    return res.status(200).json({expenses: transactions})
+  } catch (error) {
+    // Handle errors and respond with an error message
+    console.error("Error in getting budget: ", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });

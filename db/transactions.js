@@ -65,6 +65,26 @@ async function getCategoryId(name) {
     }
 }
 
+async function getExpenses(userId, year, month) {
+    if (!year) {
+        year = new Date().getFullYear();
+    }
+    if (!month) {
+        month = new Date().getMonth() + 1;
+    }
+    try {
+        const expenses = await client.query(
+            'SELECT transaction.amount AS expense, transaction.to_category_id AS "categoryId", category.name AS category, transaction.notes, transaction.date FROM transaction JOIN category ON transaction.to_category_id=category.id JOIN account_user ON transaction.account_user_id=account_user.id WHERE account_user.auth = $1 AND EXTRACT(YEAR FROM transaction.date) = $2 AND EXTRACT(MONTH FROM transaction.date) = $3',
+            [userId, year, month]
+        );
+        console.log('expenses: ', expenses.rows)
+        return expenses.rows
+    } catch (error) {
+        console.error('Error getting expenses:', error);
+        return false;
+    }
+}
+
 async function getTransactions(userId, year, month) {
     if (!year) {
         year = new Date().getFullYear();
@@ -75,7 +95,7 @@ async function getTransactions(userId, year, month) {
 
     try {
         const transactions = await client.query(
-            'SELECT transaction.amount AS expense, transaction.to_category_id AS "categoryId" FROM transaction JOIN account_user ON transaction.account_user_id=account_user.id WHERE account_user.auth =$1 AND EXTRACT(YEAR FROM transaction.date) = $2 AND EXTRACT(MONTH FROM transaction.date) = $3',
+            'SELECT transaction.amount AS expense, transaction.to_category_id AS "categoryId" FROM transaction JOIN account_user ON transaction.account_user_id=account_user.id WHERE account_user.auth = $1 AND EXTRACT(YEAR FROM transaction.date) = $2 AND EXTRACT(MONTH FROM transaction.date) = $3',
             [userId, year, month]
         );
         const categories = await client.query(
@@ -95,4 +115,5 @@ module.exports = {
     addSampleData,
     addExpense,
     getTransactions,
+    getExpenses,
 };
